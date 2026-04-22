@@ -1,0 +1,6 @@
+{
+  "merge_queue": {
+    "merge_queue": true,
+    "auto_resolve_conflicts": true
+  }
+}
