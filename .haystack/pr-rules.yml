@@ -1,153 +1,265 @@
 rules:
-  - id: "R1"
-    name: "Reuse existing engine helpers and constants"
+  - id: "cpp-no-cpp-includes"
+    name: "Do not include .cpp files"
     type: llm
     severity: warning
     category: "style"
-    message: "Prefer existing engine utilities, helper types, StringName constant tables, and named constants over custom logic, ad-hoc literals, or duplicate helper implementations."
+    message: "Never include implementation (.cpp) files; include headers instead."
     llm:
-      prompt: "Prefer existing engine utilities, helper types, StringName constant tables, and named constants over custom logic, ad-hoc literals, or duplicate helper implementations."
-  - id: "R2"
-    name: "Follow Godot C++ style and naming conventions"
-    type: llm
-    severity: warning
-    category: "style"
-    message: "Use project naming/style conventions (snake_case, p_ only for parameters, boolean is_* getters, underscore-prefixed private helpers, modern override/final usage, avoid disallowed features like auto where prohibited, and keep declaration/definition order consistent)."
-    llm:
-      prompt: "Use project naming/style conventions (snake_case, p_ only for parameters, boolean is_* getters, underscore-prefixed private helpers, modern override/final usage, avoid disallowed features like auto where prohibited, and keep declaration/definition order consistent)."
-  - id: "R3"
-    name: "Use correct includes and forward declarations"
-    type: llm
-    severity: warning
-    category: "style"
-    message: "Use explicit direct includes for directly used types, use forward declarations in headers when only pointers/references are needed, and follow repository include path conventions."
-    llm:
-      prompt: "Use explicit direct includes for directly used types, use forward declarations in headers when only pointers/references are needed, and follow repository include path conventions."
-  - id: "R4"
-    name: "Use engine error/validation macros consistently"
-    type: llm
-    severity: warning
-    category: "style"
-    message: "Use appropriate ERR_FAIL_*/ERR_PRINT/WARN_PRINT macros with specific conditions and informative messages instead of ad-hoc checks or vague logging."
-    llm:
-      prompt: "Use appropriate ERR_FAIL_*/ERR_PRINT/WARN_PRINT macros with specific conditions and informative messages instead of ad-hoc checks or vague logging."
-  - id: "R5"
-    name: "Preserve module/layer boundaries"
-    type: llm
-    severity: warning
-    category: "patterns"
-    message: "Do not introduce cross-layer includes (e.g., editor headers in core/servers); pass data through proper public interfaces and keep layered architecture intact."
-    llm:
-      prompt: "Do not introduce cross-layer includes (e.g., editor headers in core/servers); pass data through proper public interfaces and keep layered architecture intact."
-  - id: "R6"
-    name: "Bind and expose scripting APIs completely and compatibly"
-    type: llm
-    severity: warning
-    category: "patterns"
-    message: "When adding/changing scripting-facing APIs, add required bindings and metadata (methods/properties/enums/signals), keep exposed enum ordering compatibility-safe, and follow compatibility-method patterns."
-    llm:
-      prompt: "When adding/changing scripting-facing APIs, add required bindings and metadata (methods/properties/enums/signals), keep exposed enum ordering compatibility-safe, and follow compatibility-method patterns."
-  - id: "R7"
-    name: "Maintain backward compatibility for extension-facing/API surfaces"
-    type: llm
-    severity: warning
-    category: "patterns"
-    message: "Changes to shared/public or GDExtension-facing behavior must preserve compatibility paths/guards and update required compatibility data to avoid breaking existing projects/extensions."
-    llm:
-      prompt: "Changes to shared/public or GDExtension-facing behavior must preserve compatibility paths/guards and update required compatibility data to avoid breaking existing projects/extensions."
-  - id: "R8"
-    name: "Guard optional dependencies and platform-specific code"
-    type: llm
-    severity: warning
-    category: "patterns"
-    message: "Module/platform/SDK-dependent code must be conditionally guarded and keep fallback behavior so builds remain valid when optional components are unavailable."
-    llm:
-      prompt: "Module/platform/SDK-dependent code must be conditionally guarded and keep fallback behavior so builds remain valid when optional components are unavailable."
-  - id: "R9"
-    name: "Keep debug and release semantics aligned"
-    type: llm
-    severity: warning
-    category: "patterns"
-    message: "Do not introduce unintended DEBUG-vs-RELEASE behavioral divergence beyond explicit diagnostics."
-    llm:
-      prompt: "Do not introduce unintended DEBUG-vs-RELEASE behavioral divergence beyond explicit diagnostics."
-  - id: "R10"
-    name: "Use safe object/pointer handling"
-    type: llm
-    severity: warning
-    category: "security"
-    message: "Defensively null-check nullable pointers before dereference (including after calls that may invalidate state), use safe cast/validation helpers, and avoid unsafe lifetime/initialization patterns."
-    llm:
-      prompt: "Defensively null-check nullable pointers before dereference (including after calls that may invalidate state), use safe cast/validation helpers, and avoid unsafe lifetime/initialization patterns."
-  - id: "R11"
-    name: "Do not deserialize full objects over debugger transports"
-    type: llm
-    severity: warning
-    category: "security"
-    message: "Debugger/editor protocols must exchange safe identifiers/primitive data rather than deserializing arbitrary remote objects."
-    llm:
-      prompt: "Debugger/editor protocols must exchange safe identifiers/primitive data rather than deserializing arbitrary remote objects."
-  - id: "R12"
-    name: "Avoid unnecessary work in hot paths"
+      prompt: "Never include implementation (.cpp) files; include headers instead."
+  - id: "cpp-forward-declare-in-headers"
+    name: "Prefer forward declarations in headers"
     type: llm
     severity: warning
     category: "performance"
-    message: "Cache repeated expensive lookups in loops/frequent paths and remove redundant checks/updates/deferred calls that provide no correctness benefit."
+    message: "In headers, forward declare types when only pointers or references are needed and move heavy includes to source files."
     llm:
-      prompt: "Cache repeated expensive lookups in loops/frequent paths and remove redundant checks/updates/deferred calls that provide no correctness benefit."
-  - id: "R13"
-    name: "Avoid discouraged performance patterns"
+      prompt: "In headers, forward declare types when only pointers or references are needed and move heavy includes to source files."
+  - id: "cpp-use-reference-in-range-loops"
+    name: "Use references in range loops"
     type: llm
     severity: warning
     category: "performance"
-    message: "Do not introduce known discouraged constructs (e.g., RBMap in new code without justification, unnecessary exception-based flows, avoidable temporary StringName constructions)."
+    message: "Use const or non-const references in C++ range-based loops instead of by-value iteration unless copying is intentional."
     llm:
-      prompt: "Do not introduce known discouraged constructs (e.g., RBMap in new code without justification, unnecessary exception-based flows, avoidable temporary StringName constructions)."
-  - id: "R14"
-    name: "Localize user-facing editor/UI text correctly"
+      prompt: "Use const or non-const references in C++ range-based loops instead of by-value iteration unless copying is intentional."
+  - id: "cpp-avoid-unnecessary-copies-hot-paths"
+    name: "Avoid unnecessary copies and repeated lookups"
     type: llm
     severity: warning
-    category: "patterns"
-    message: "Wrap translatable UI strings with correct translation helpers (e.g., TTRC/TTR as appropriate), refresh UI on translation-change notifications, and do not translate strict identifier labels."
+    category: "performance"
+    message: "In hot paths, avoid avoidable allocations/copies and cache repeated lookups/settings outside loops."
     llm:
-      prompt: "Wrap translatable UI strings with correct translation helpers (e.g., TTRC/TTR as appropriate), refresh UI on translation-change notifications, and do not translate strict identifier labels."
-  - id: "R15"
-    name: "Keep docs in sync with API/behavior changes"
-    type: llm
-    severity: warning
-    category: "patterns"
-    message: "When public API or user-visible behavior changes, update class reference/docs in the same PR, including required descriptions, accurate language examples, platform notes, and required cross-references."
-    llm:
-      prompt: "When public API or user-visible behavior changes, update class reference/docs in the same PR, including required descriptions, accurate language examples, platform notes, and required cross-references."
-  - id: "R16"
-    name: "Follow documentation formatting conventions"
-    type: llm
-    severity: warning
-    category: "patterns"
-    message: "Follow docs style/format constraints such as tab-indented XML codeblocks, required ordering (e.g., alphabetical lists where mandated), and avoid unrelated formatting churn."
-    llm:
-      prompt: "Follow docs style/format constraints such as tab-indented XML codeblocks, required ordering (e.g., alphabetical lists where mandated), and avoid unrelated formatting churn."
-  - id: "R17"
-    name: "Do not manually edit managed translation artifacts"
-    type: llm
-    severity: warning
-    category: "patterns"
-    message: "Do not directly edit managed translation files (e.g., editor/translations/*.po) outside the designated translation workflow/tooling."
-    llm:
-      prompt: "Do not directly edit managed translation files (e.g., editor/translations/*.po) outside the designated translation workflow/tooling."
-  - id: "R18"
-    name: "Keep changes scoped and atomic"
+      prompt: "In hot paths, avoid avoidable allocations/copies and cache repeated lookups/settings outside loops."
+  - id: "cpp-const-correctness-no-const-cast"
+    name: "Preserve const-correctness"
     type: llm
     severity: warning
     category: "style"
-    message: "Avoid unrelated refactors, drive-by edits, and diff noise; keep each PR focused on its stated fix/feature scope."
+    message: "Do not cast away constness; use proper const design or mutable caches where justified."
     llm:
-      prompt: "Avoid unrelated refactors, drive-by edits, and diff noise; keep each PR focused on its stated fix/feature scope."
-  - id: "R19"
-    name: "Meet contribution gate requirements"
+      prompt: "Do not cast away constness; use proper const design or mutable caches where justified."
+  - id: "cpp-file-local-static-helpers"
+    name: "Use internal linkage for file-local helpers"
+    type: llm
+    severity: warning
+    category: "style"
+    message: "Mark helper functions as static when they are only used within a single .cpp file."
+    llm:
+      prompt: "Mark helper functions as static when they are only used within a single .cpp file."
+  - id: "cpp-snake-case-and-prefix-conventions"
+    name: "Follow C++ naming conventions"
+    type: llm
+    severity: warning
+    category: "style"
+    message: "Use snake_case identifiers, reserve p_ for parameters, and use r_ for output reference parameters."
+    llm:
+      prompt: "Use snake_case identifiers, reserve p_ for parameters, and use r_ for output reference parameters."
+  - id: "cpp-use-godot-memory-and-error-idioms"
+    name: "Use Godot memory and error idioms"
     type: llm
     severity: warning
     category: "patterns"
-    message: "Do not submit AI-generated PR content; require linked feature proposals for new features and reproducible minimal cases for bug reports/fixes."
+    message: "Use Godot allocation/lifetime patterns and ERR_FAIL/WARN macros with clear context instead of ad-hoc memory or silent failure handling."
     llm:
-      prompt: "Do not submit AI-generated PR content; require linked feature proposals for new features and reproducible minimal cases for bug reports/fixes."
+      prompt: "Use Godot allocation/lifetime patterns and ERR_FAIL/WARN macros with clear context instead of ad-hoc memory or silent failure handling."
+  - id: "cpp-guard-preconditions"
+    name: "Validate preconditions before engine calls"
+    type: llm
+    severity: warning
+    category: "security"
+    message: "Add ERR_FAIL-style checks for invalid object/state/argument preconditions before calling engine APIs."
+    llm:
+      prompt: "Add ERR_FAIL-style checks for invalid object/state/argument preconditions before calling engine APIs."
+  - id: "cpp-early-return-noop-setters"
+    name: "Early return on unchanged setter values"
+    type: llm
+    severity: warning
+    category: "performance"
+    message: "In setters, return early when the new value equals the current value to avoid redundant work and side effects."
+    llm:
+      prompt: "In setters, return early when the new value equals the current value to avoid redundant work and side effects."
+  - id: "cpp-use-typed-apis-over-reflection"
+    name: "Prefer typed APIs over dynamic reflection"
+    type: llm
+    severity: warning
+    category: "style"
+    message: "Use typed engine helpers/casts/checks instead of dynamic name-based reflection when an equivalent typed API exists."
+    llm:
+      prompt: "Use typed engine helpers/casts/checks instead of dynamic name-based reflection when an equivalent typed API exists."
+  - id: "cpp-use-stringname-helpers-appropriately"
+    name: "Use StringName helpers appropriately"
+    type: llm
+    severity: warning
+    category: "performance"
+    message: "Use SceneStringName/CoreStringName/SNAME for reused identifiers in hot paths, but avoid unnecessary interning for one-off or String-only APIs."
+    llm:
+      prompt: "Use SceneStringName/CoreStringName/SNAME for reused identifiers in hot paths, but avoid unnecessary interning for one-off or String-only APIs."
+  - id: "cpp-preserve-deprecated-compatibility-guards"
+    name: "Preserve deprecated API compatibility guards"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Keep deprecated APIs and compatibility behavior consistently wrapped and registered under DISABLE_DEPRECATED guards."
+    llm:
+      prompt: "Keep deprecated APIs and compatibility behavior consistently wrapped and registered under DISABLE_DEPRECATED guards."
+  - id: "api-preserve-compatibility"
+    name: "Preserve public API compatibility"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Do not introduce breaking renames or enum/interface behavior changes without a documented compatibility or migration path."
+    llm:
+      prompt: "Do not introduce breaking renames or enum/interface behavior changes without a documented compatibility or migration path."
+  - id: "bindings-keep-types-and-exposure-consistent"
+    name: "Keep bindings consistent with storage and visibility"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Ensure script-exposed properties/methods/enums are fully bound with types and visibility that match underlying storage and intended API surface."
+    llm:
+      prompt: "Ensure script-exposed properties/methods/enums are fully bound with types and visibility that match underlying storage and intended API surface."
+  - id: "core-must-not-depend-on-editor-or-modules"
+    name: "Keep core layer independent"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Do not introduce direct core dependencies on editor or module code; use abstractions/signals/interfaces instead."
+    llm:
+      prompt: "Do not introduce direct core dependencies on editor or module code; use abstractions/signals/interfaces instead."
+  - id: "editor-runtime-separation"
+    name: "Keep editor-only code out of runtime paths"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Do not depend on editor-only code from runtime/scene modules; apply editor behavior through editor-side integration points."
+    llm:
+      prompt: "Do not depend on editor-only code from runtime/scene modules; apply editor behavior through editor-side integration points."
+  - id: "editor-use-undoredo-for-scene-state"
+    name: "Use UndoRedo for editor scene mutations"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Record editor-created or modified node/property state with UndoRedo so live-editing and sync behavior remains correct."
+    llm:
+      prompt: "Record editor-created or modified node/property state with UndoRedo so live-editing and sync behavior remains correct."
+  - id: "editor-preserve-selection-caret-and-multiselect"
+    name: "Preserve editor selection and caret behavior"
+    type: llm
+    severity: warning
+    category: "style"
+    message: "Use text/scene APIs that preserve caret, multi-selection, and intended full-selection action semantics."
+    llm:
+      prompt: "Use text/scene APIs that preserve caret, multi-selection, and intended full-selection action semantics."
+  - id: "editor-use-stable-menu-ids"
+    name: "Use stable menu item IDs"
+    type: llm
+    severity: warning
+    category: "style"
+    message: "Use menu item IDs with lookup helpers instead of hardcoded menu indexes."
+    llm:
+      prompt: "Use menu item IDs with lookup helpers instead of hardcoded menu indexes."
+  - id: "ui-text-style-and-translation-safe"
+    name: "Follow UI text and translation conventions"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Use project UI casing/wording conventions and translation-safe patterns/macros for user-facing text."
+    llm:
+      prompt: "Use project UI casing/wording conventions and translation-safe patterns/macros for user-facing text."
+  - id: "docs-update-for-api-and-user-visible-changes"
+    name: "Update docs for exposed API or behavior changes"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "When public API or user-visible behavior changes, update corresponding class reference documentation in the same change."
+    llm:
+      prompt: "When public API or user-visible behavior changes, update corresponding class reference documentation in the same change."
+  - id: "docs-follow-style-and-us-english"
+    name: "Follow documentation style conventions"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Write docs in project style (including US English and required punctuation conventions) with concise technical tone."
+    llm:
+      prompt: "Write docs in project style (including US English and required punctuation conventions) with concise technical tone."
+  - id: "docs-avoid-unnecessary-wording-churn"
+    name: "Avoid unnecessary documentation churn"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Do not make wording-only doc rewrites that add little value and unnecessarily invalidate translations."
+    llm:
+      prompt: "Do not make wording-only doc rewrites that add little value and unnecessarily invalidate translations."
+  - id: "docs-no-direct-po-edits"
+    name: "Do not edit translation .po files directly"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Do not manually modify autogenerated translation .po files; use the project translation workflow."
+    llm:
+      prompt: "Do not manually modify autogenerated translation .po files; use the project translation workflow."
+  - id: "platform-guard-platform-specific-codepaths"
+    name: "Guard platform-specific code correctly"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Gate platform/thread-specific behavior with the correct compile/runtime guards and avoid leaking logic to unsupported targets."
+    llm:
+      prompt: "Gate platform/thread-specific behavior with the correct compile/runtime guards and avoid leaking logic to unsupported targets."
+  - id: "performance-no-per-frame-allocations"
+    name: "Avoid per-frame allocations in hot paths"
+    type: llm
+    severity: warning
+    category: "performance"
+    message: "Do not allocate new objects/arrays in frequently called per-frame or input paths; reuse buffers where possible."
+    llm:
+      prompt: "Do not allocate new objects/arrays in frequently called per-frame or input paths; reuse buffers where possible."
+  - id: "audio-no-blocking-realtime-thread"
+    name: "Avoid blocking operations in real-time audio threads"
+    type: llm
+    severity: warning
+    category: "performance"
+    message: "Do not add potentially stalling or blocking work in real-time audio thread paths."
+    llm:
+      prompt: "Do not add potentially stalling or blocking work in real-time audio thread paths."
+  - id: "rendering-preserve-order-dependent-ops"
+    name: "Preserve order-dependent rendering semantics"
+    type: llm
+    severity: warning
+    category: "performance"
+    message: "When batching/sorting or optimizing rendering commands, keep explicit handling for operations whose correctness depends on execution order."
+    llm:
+      prompt: "When batching/sorting or optimizing rendering commands, keep explicit handling for operations whose correctness depends on execution order."
+  - id: "resource-loading-safe-teardown"
+    name: "Handle in-flight resource loads during teardown"
+    type: llm
+    severity: warning
+    category: "security"
+    message: "Ensure resource loader shutdown paths safely stop or drain active loads to prevent hangs/deadlocks."
+    llm:
+      prompt: "Ensure resource loader shutdown paths safely stop or drain active loads to prevent hangs/deadlocks."
+  - id: "vulkan-resize-after-returned-count"
+    name: "Resize arrays after Vulkan count queries"
+    type: llm
+    severity: warning
+    category: "security"
+    message: "After Vulkan calls that update output counts, resize destination arrays to the returned count before further use."
+    llm:
+      prompt: "After Vulkan calls that update output counts, resize destination arrays to the returned count before further use."
+  - id: "ci-gate-secret-backed-steps"
+    name: "Gate secret-backed CI steps"
+    type: llm
+    severity: warning
+    category: "security"
+    message: "Restrict secret-using CI steps to trusted contexts and do not run them on untrusted pull requests."
+    llm:
+      prompt: "Restrict secret-using CI steps to trusted contexts and do not run them on untrusted pull requests."
+  - id: "ci-preserve-required-build-workflow-basics"
+    name: "Preserve required CI build workflow conventions"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Keep required workflow conventions such as shared SCons flags, recursive submodule checkout, and approved local composite actions."
+    llm:
+      prompt: "Keep required workflow conventions such as shared SCons flags, recursive submodule checkout, and approved local composite actions."
