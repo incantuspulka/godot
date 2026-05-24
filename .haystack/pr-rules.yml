@@ -1,97 +1,153 @@
 rules:
-  - id: "preserve-abi-and-compatibility-guards"
-    name: "Preserve ABI and deprecated compatibility guards"
+  - id: "require-tests-for-behavior-changes"
+    name: "Require tests for behavior changes"
     type: llm
     severity: warning
     category: "patterns"
-    message: "Do not introduce ABI-breaking public/extension changes in regular PRs, and keep deprecated APIs and compatibility paths guarded with DISABLE_DEPRECATED."
+    message: "Add or update tests in the same PR when changing runtime or user-visible behavior."
     llm:
-      prompt: "Do not introduce ABI-breaking public/extension changes in regular PRs, and keep deprecated APIs and compatibility paths guarded with DISABLE_DEPRECATED."
-  - id: "keep-core-module-boundaries-clean"
-    name: "Keep core/editor/module boundaries clean"
-    type: llm
-    severity: warning
-    category: "patterns"
-    message: "Do not add dependencies from core runtime code to editor-only or modules code; use existing abstractions/interfaces instead."
-    llm:
-      prompt: "Do not add dependencies from core runtime code to editor-only or modules code; use existing abstractions/interfaces instead."
-  - id: "avoid-unnecessary-copies-and-allocations"
-    name: "Avoid unnecessary copies and allocations"
-    type: llm
-    severity: warning
-    category: "performance"
-    message: "In performance-sensitive paths, avoid extra temporaries, container/value copies, repeated lookups, and per-frame allocations by using const references, caching, and buffer reuse."
-    llm:
-      prompt: "In performance-sensitive paths, avoid extra temporaries, container/value copies, repeated lookups, and per-frame allocations by using const references, caching, and buffer reuse."
-  - id: "follow-project-cpp-style-and-idioms"
-    name: "Follow project C++ style and idioms"
+      prompt: "Add or update tests in the same PR when changing runtime or user-visible behavior."
+  - id: "use-engine-error-guards"
+    name: "Use engine error guard macros"
     type: llm
     severity: warning
     category: "style"
-    message: "Use established engine conventions for naming, signatures, tabs indentation, guard clauses, forward declarations, and existing helper/macros instead of ad-hoc patterns."
+    message: "Use project ERR_* guard macros for precondition checks and early returns instead of ad-hoc handling."
     llm:
-      prompt: "Use established engine conventions for naming, signatures, tabs indentation, guard clauses, forward declarations, and existing helper/macros instead of ad-hoc patterns."
-  - id: "use-godot-error-memory-stringname-idioms"
-    name: "Use Godot error, memory, and StringName idioms"
+      prompt: "Use project ERR_* guard macros for precondition checks and early returns instead of ad-hoc handling."
+  - id: "update-docs-for-api-behavior-changes"
+    name: "Update docs for API and behavior changes"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "When public APIs or user-visible behavior change, update the corresponding class reference documentation in the same PR."
+    llm:
+      prompt: "When public APIs or user-visible behavior change, update the corresponding class reference documentation in the same PR."
+  - id: "follow-doc-style-and-accuracy"
+    name: "Follow documentation style and accuracy rules"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Keep documentation concise, consistent, and factual, preserve important caveats, and ensure wording matches actual engine behavior."
+    llm:
+      prompt: "Keep documentation concise, consistent, and factual, preserve important caveats, and ensure wording matches actual engine behavior."
+  - id: "avoid-unnecessary-doc-churn"
+    name: "Avoid unnecessary documentation churn"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Do not perform phrasing-only doc rewrites or edits that needlessly invalidate translations without clear technical clarity gains."
+    llm:
+      prompt: "Do not perform phrasing-only doc rewrites or edits that needlessly invalidate translations without clear technical clarity gains."
+  - id: "do-not-edit-generated-translation-files"
+    name: "Do not edit generated translation files directly"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Do not manually modify editor/translations/*.po files because they are generated and managed externally."
+    llm:
+      prompt: "Do not manually modify editor/translations/*.po files because they are generated and managed externally."
+  - id: "follow-cpp-style-and-naming-conventions"
+    name: "Follow C++ style and naming conventions"
     type: llm
     severity: warning
     category: "style"
-    message: "Use project-standard ERR_FAIL/ERR_CONTINUE macros, Godot memory-management patterns, and StringName helpers (SceneStringName/CoreStringName/SNAME) rather than custom checks or raw string literals where StringName is expected."
+    message: "Use project C++ conventions for snake_case naming, parameter/output prefixes, const-correct signatures, and idiomatic control flow."
     llm:
-      prompt: "Use project-standard ERR_FAIL/ERR_CONTINUE macros, Godot memory-management patterns, and StringName helpers (SceneStringName/CoreStringName/SNAME) rather than custom checks or raw string literals where StringName is expected."
-  - id: "keep-hot-paths-side-effect-free-and-fast"
-    name: "Keep hot paths side-effect free and fast"
+      prompt: "Use project C++ conventions for snake_case naming, parameter/output prefixes, const-correct signatures, and idiomatic control flow."
+  - id: "prefer-existing-engine-helpers-and-conventions"
+    name: "Prefer existing engine helpers and conventions"
     type: llm
     severity: warning
-    category: "performance"
-    message: "Polling/per-frame/realtime paths must avoid side effects, blocking work, redundant calls, and log spam, and preserve early-return no-op guards where applicable."
+    category: "style"
+    message: "Use established engine helpers and conventions (e.g., StringName/signal/input helpers) instead of reimplementing equivalent logic."
     llm:
-      prompt: "Polling/per-frame/realtime paths must avoid side effects, blocking work, redundant calls, and log spam, and preserve early-return no-op guards where applicable."
-  - id: "keep-docs-aligned-and-style-compliant"
-    name: "Keep docs aligned with behavior and style"
+      prompt: "Use established engine helpers and conventions (e.g., StringName/signal/input helpers) instead of reimplementing equivalent logic."
+  - id: "avoid-trivial-abstractions-and-dead-code"
+    name: "Avoid trivial abstractions and dead code"
     type: llm
     severity: warning
-    category: "patterns"
-    message: "When public API or behavior changes, update class reference docs accurately and follow project documentation style (US English, consistent terminology, clear deprecation/replacement notes, and translatable UI text conventions)."
+    category: "style"
+    message: "Do not add low-value helper wrappers, and remove unused variables, stale comments, debug leftovers, and unreachable checks."
     llm:
-      prompt: "When public API or behavior changes, update class reference docs accurately and follow project documentation style (US English, consistent terminology, clear deprecation/replacement notes, and translatable UI text conventions)."
-  - id: "avoid-translation-and-doc-churn"
-    name: "Avoid unnecessary doc and translation churn"
-    type: llm
-    severity: warning
-    category: "patterns"
-    message: "Do not make preference-only documentation rewrites or direct .po edits; keep documentation diffs focused and update translations through the approved localization workflow."
-    llm:
-      prompt: "Do not make preference-only documentation rewrites or direct .po edits; keep documentation diffs focused and update translations through the approved localization workflow."
+      prompt: "Do not add low-value helper wrappers, and remove unused variables, stale comments, debug leftovers, and unreachable checks."
   - id: "keep-pr-scope-focused"
-    name: "Keep PR scope focused"
+    name: "Keep changes scoped to intent"
     type: llm
     severity: warning
     category: "patterns"
-    message: "Do not mix unrelated refactors, feature additions in bugfix PRs, or leftover debug artifacts; keep each PR/issue focused on one intended change."
+    message: "Do not mix unrelated refactors or drive-by edits into a PR; keep changes focused on the stated fix or feature."
     llm:
-      prompt: "Do not mix unrelated refactors, feature additions in bugfix PRs, or leftover debug artifacts; keep each PR/issue focused on one intended change."
-  - id: "validate-public-inputs-and-types"
-    name: "Validate public inputs and exposed types"
+      prompt: "Do not mix unrelated refactors or drive-by edits into a PR; keep changes focused on the stated fix or feature."
+  - id: "use-efficient-data-access-patterns"
+    name: "Use efficient data access patterns"
+    type: llm
+    severity: warning
+    category: "performance"
+    message: "Prefer const references, direct iteration, cached lookups, and buffer reuse to avoid unnecessary allocations and copies in hot paths."
+    llm:
+      prompt: "Prefer const references, direct iteration, cached lookups, and buffer reuse to avoid unnecessary allocations and copies in hot paths."
+  - id: "keep-includes-minimal"
+    name: "Keep includes minimal and correct"
+    type: llm
+    severity: warning
+    category: "performance"
+    message: "Prefer forward declarations in headers, avoid unnecessary includes, and never include .cpp files."
+    llm:
+      prompt: "Prefer forward declarations in headers, avoid unnecessary includes, and never include .cpp files."
+  - id: "respect-layering-boundaries"
+    name: "Respect module layering boundaries"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Do not introduce dependencies from core code to editor or modules; use abstraction boundaries instead."
+    llm:
+      prompt: "Do not introduce dependencies from core code to editor or modules; use abstraction boundaries instead."
+  - id: "preserve-public-api-compatibility"
+    name: "Preserve public API compatibility"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Keep public API signatures, enum values, deprecations, and compatibility paths stable, guarding deprecated code with DISABLE_DEPRECATED where required."
+    llm:
+      prompt: "Keep public API signatures, enum values, deprecations, and compatibility paths stable, guarding deprecated code with DISABLE_DEPRECATED where required."
+  - id: "use-engine-memory-and-lifetime-idioms"
+    name: "Use engine memory and lifetime idioms"
     type: llm
     severity: warning
     category: "security"
-    message: "Enforce documented runtime parameter ranges and keep script/binding/property types consistent with storage and serialization semantics."
+    message: "Follow project ownership patterns such as Ref<T>::instantiate and memnew/memdelete, and avoid unsafe shared mutable access across threads."
     llm:
-      prompt: "Enforce documented runtime parameter ranges and keep script/binding/property types consistent with storage and serialization semantics."
-  - id: "preserve-platform-and-thread-safety-guards"
-    name: "Preserve platform/thread safety guards"
+      prompt: "Follow project ownership patterns such as Ref<T>::instantiate and memnew/memdelete, and avoid unsafe shared mutable access across threads."
+  - id: "validate-inputs-and-documented-constraints"
+    name: "Validate inputs and documented constraints"
     type: llm
     severity: warning
-    category: "security"
-    message: "Retain required nullability, thread-availability, and synchronization guard patterns in platform and threaded code instead of weakening checks."
+    category: "patterns"
+    message: "Enforce documented parameter ranges and path validity in code with appropriate runtime guards."
     llm:
-      prompt: "Retain required nullability, thread-availability, and synchronization guard patterns in platform and threaded code instead of weakening checks."
-  - id: "keep-ci-safety-and-api-checks-intact"
-    name: "Keep CI safety and API compatibility checks intact"
+      prompt: "Enforce documented parameter ranges and path validity in code with appropriate runtime guards."
+  - id: "avoid-blocking-or-heavy-work-in-realtime-paths"
+    name: "Keep realtime and polling paths lightweight"
     type: llm
     severity: warning
-    category: "security"
-    message: "Do not weaken required CI protections for submodules, API/doctool compatibility validation, secure branch-gated credentialed jobs, and shared build workflow patterns."
+    category: "performance"
+    message: "Do not add blocking operations, mutating state calls, or per-event allocations in audio, polling, and high-frequency input paths."
     llm:
-      prompt: "Do not weaken required CI protections for submodules, API/doctool compatibility validation, secure branch-gated credentialed jobs, and shared build workflow patterns."
+      prompt: "Do not add blocking operations, mutating state calls, or per-event allocations in audio, polling, and high-frequency input paths."
+  - id: "preserve-error-context"
+    name: "Preserve underlying error context"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "When propagating failures, keep specific underlying error codes/messages rather than replacing them with generic results."
+    llm:
+      prompt: "When propagating failures, keep specific underlying error codes/messages rather than replacing them with generic results."
+  - id: "require-repro-for-bugfixes"
+    name: "Require reproduction details for bug fixes"
+    type: llm
+    severity: warning
+    category: "patterns"
+    message: "Bug-fix PRs must include clear reproduction steps or a minimal reproduction project."
+    llm:
+      prompt: "Bug-fix PRs must include clear reproduction steps or a minimal reproduction project."
