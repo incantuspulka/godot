@@ -1,88 +1,68 @@
 # Review Policies
 
-## Core reflection, Variant, and extension ABI surfaces
-- **Paths**: `core/object/**`, `core/variant/**`, `core/string/**`, `core/extension/**`
+## Core object/variant/extension ABI safety
+- **Paths**: `core/object/**`, `core/variant/**`, `core/extension/**`, `**/*.compat.inc`, `misc/extension_api_validation/**`
 - **Severity**: critical
-- **Reason**: Changes can silently break scripting/language bindings and binary compatibility in ways CI may not fully detect.
+- **Reason**: AI changes here can silently break ABI/API compatibility for extensions and language bindings even when CI passes.
 
-## Threaded loading and resource lifecycle internals
-- **Paths**: `core/io/**`, `scene/resources/**`, `utils/async_loaded_resource.gd`, `utils/async_loaded_group.gd`
+## Rendering, driver, and shader behavior
+- **Paths**: `servers/rendering/**`, `drivers/vulkan/**`, `drivers/gles3/**`, `drivers/d3d12/**`, `servers/rendering/renderer_rd/shaders/**`, `drivers/gles3/shaders/**`, `scene/3d/**`, `scene/resources/material.cpp`
 - **Severity**: critical
-- **Reason**: Threaded loading and teardown edits can introduce nondeterministic hangs, deadlocks, or shutdown races that are hard to validate automatically.
+- **Reason**: Rendering/driver/shader diffs can compile and test cleanly while causing hardware-specific crashes, visual regressions, or synchronization bugs.
 
-## Archive extraction path and permission handling
-- **Paths**: `core/io/**`, `modules/zip/**`
-- **Severity**: critical
-- **Reason**: Archive parsing/extraction changes can reintroduce path traversal or unsafe permission restoration vulnerabilities.
-
-## Rendering, shader, and backend driver paths
-- **Paths**: `servers/rendering/**`, `drivers/gles3/**`, `drivers/vulkan/**`, `scene/3d/**`
-- **Severity**: critical
-- **Reason**: Small changes can cause race conditions, GPU/vendor-specific regressions, or subtle visual defects not reliably caught by CI.
-
-## XR/OpenXR runtime integration
-- **Paths**: `modules/openxr/**`, `scene/3d/xr/**`, `modules/mobile_vr/**`
+## Export/platform/project workflow integrity
+- **Paths**: `editor/export/**`, `platform/*/export/**`, `platform/linuxbsd/export/**`, `platform/windows/export/**`, `editor/project_manager/**`
 - **Severity**: high
-- **Reason**: Runtime/device-specific extension negotiation and session behavior require hardware validation beyond automated tests.
+- **Reason**: Exporter lifecycle and project workflow changes can regress end-to-end packaging behavior and notifications in ways static checks miss.
 
-## Apple embedded export packaging
-- **Paths**: `platform/ios/**`, `platform/visionos/**`, `drivers/apple_embedded/**`, `misc/dist/apple_embedded_xcode/**`
-- **Severity**: critical
-- **Reason**: Packaging/linking mistakes may compile but fail on device or distribution workflows.
-
-## Windows message loop and DPI/titlebar behavior
-- **Paths**: `platform/windows/**`, `editor/project_manager/**`, `editor/editor_node.cpp`, `scene/gui/caption_button_overlay.cpp`
-- **Severity**: high
-- **Reason**: Changes can introduce freezes, shutdown issues, or OS integration regressions that require manual runtime verification.
-
-## Editor export and packaging flow
-- **Paths**: `editor/export/**`, `editor/run/**`, `platform/*/export/**`
-- **Severity**: high
-- **Reason**: Export lifecycle/notifier mistakes can silently break multi-platform packaging behavior not fully covered by tests.
-
-## Android interop and runtime hot paths
+## Android lifecycle and runtime interop
 - **Paths**: `platform/android/**`
+- **Severity**: critical
+- **Reason**: Lifecycle/JNI/plugin/proxy changes often fail only on real devices and can cause startup/runtime crashes not covered by CI.
+
+## OpenXR/XR runtime integration
+- **Paths**: `modules/openxr/**`, `modules/mobile_vr/**`, `scene/3d/xr/**`, `modules/cross_runtime/**`
 - **Severity**: high
-- **Reason**: JNI/proxy contract errors and hot-path allocation changes can cause runtime crashes or performance regressions not seen in static checks.
+- **Reason**: XR session/extension/fallback behavior is runtime- and device-specific, so AI cannot reliably validate correctness from static diffs.
 
-## Editor UI layout, previews, and interaction flows
-- **Paths**: `editor/inspector/**`, `editor/docks/**`, `editor/scene/**`, `scene/gui/**`, `editor/script/**`, `scene/debugger/**`
+## Resource I/O, serialization, and loader lifecycle
+- **Paths**: `core/io/**`, `core/io/resource_format_binary.cpp`, `scene/resources/**`, `core/variant/variant_parser.cpp`, `modules/zip/**`
+- **Severity**: critical
+- **Reason**: Parsing/loading/archive changes risk data loss, hangs, stale-cache behavior, or filesystem security flaws that automated checks may miss.
+
+## Threading and editor interaction paths
+- **Paths**: `editor/**`, `editor/gui/**`, `editor/docks/**`, `editor/scene/**`, `editor/inspector/**`, `editor/**/editor_resource_preview*`, `scene/gui/**`
 - **Severity**: high
-- **Reason**: Interaction semantics and preview lifecycle behavior often require manual interactive testing to catch regressions.
+- **Reason**: Interactive editor/threading/layout regressions are state-dependent and often require manual UX testing across scenarios.
 
-## Class reference XML changes
-- **Paths**: `doc/classes/*.xml`, `modules/*/doc_classes/**`
-- **Severity**: medium
-- **Reason**: Wording/signature edits can break cross-references, translation workflows, or user-facing API accuracy despite passing CI.
-
-## CI workflow orchestration and coverage gates
-- **Paths**: `.github/workflows/runner.yml`, `.github/workflows/*_builds.yml`
+## Build system and CI orchestration
+- **Paths**: `SConstruct`, `methods.py`, `platform_methods.py`, `site_scons/**`, `platform/*/detect.py`, `.github/workflows/**`, `drivers/sdl/**`
 - **Severity**: high
-- **Reason**: Workflow condition/matrix edits can silently reduce platform/test coverage while pipelines remain green.
+- **Reason**: Build/CI edits can silently reduce platform coverage or break toolchain/cross-compile paths while green checks still appear.
 
-## Build graph and SCons/codegen pipeline
-- **Paths**: `SConstruct`, `SCsub`, `site_scons/**`, `platform/web/emscripten_helpers.py`
-- **Severity**: high
-- **Reason**: Build system changes can impact reproducibility and cross-platform toolchains in ways single-path CI cannot prove safe.
-
-## Third-party vendored dependency updates
-- **Paths**: `thirdparty/**`
-- **Severity**: high
-- **Reason**: Vendored library changes carry upstream divergence, security, and licensing risks requiring human review.
-
-## Audio driver threading and reconnect behavior
+## Audio threading and reconnect behavior
 - **Paths**: `drivers/pulseaudio/**`, `servers/audio/**`
 - **Severity**: high
-- **Reason**: Thread-state/reconnect edits can introduce deadlocks, glitches, or assertion failures that are timing-dependent.
+- **Reason**: Small audio-thread changes can introduce stalls/deadlocks or unrecoverable reconnect failures not reproducible in standard CI.
+
+## Third-party vendored library updates
+- **Paths**: `thirdparty/**`
+- **Severity**: high
+- **Reason**: AI edits to vendored code can diverge from upstream and introduce long-term maintenance/security risks requiring expert verification.
+
+## Platform windowing and native UI behavior
+- **Paths**: `platform/windows/**`, `platform/macos/**`, `platform/ios/**`, `drivers/apple_embedded/**`, `scene/main/window.cpp`, `scene/gui/caption_button_overlay.cpp`
+- **Severity**: high
+- **Reason**: Platform-specific windowing/chrome/event behavior can regress only on target OS/device combinations and needs manual validation.
 
 ## Instructions
-- If a change removes or weakens validation checks, fallback paths, null/lifecycle guards, or early-fail behavior, a human must confirm the invariants hold in real scenarios.
-- If public API shapes, names/order, defaults, casting behavior, or extension interfaces change, a human must assess migration cost and compatibility risk.
-- If editor interaction semantics (selection, drag/drop, previews, shortcuts, sizing, discoverability) change, a human should validate the UX tradeoff with manual testing.
-- If a PR adds caching or other optimizations that increase complexity, a human should verify the measured benefit justifies maintenance and memory costs.
-- If threaded vs non-threaded behavior, synchronization, deferral, or lifecycle ordering changes, a human must validate correctness across platforms/callers.
-- If a change switches between hard failure, warning, retry, degrade, or default fallback behavior, a human must judge the strictness/availability tradeoff.
-- If warning or error emission frequency/severity changes, a human must balance diagnosability against noise and operational impact.
-- If many existing docs/tooltips/messages are rewritten without behavior change, a human should confirm the clarity gain justifies translation invalidation.
-- If new script-visible properties, methods, enums, or tuning knobs are introduced, a human must decide whether long-term API maintenance cost is justified.
-- If workflow matrix entries, guards, or timeouts change, a human must confirm runtime/cost savings do not remove essential validation coverage.
+- If a change modifies public API shape, semantics, naming, or deprecation routing, a human must decide whether compatibility and migration impact are acceptable.
+- If a PR changes guard behavior, error/warning severity, retry/fallback strategy, or strictness versus resilience, a human must confirm product expectations are still met.
+- If optimization adds caching, custom fast paths, or extra state, a human must verify the measured benefit justifies readability, lifecycle, and maintenance costs.
+- If new cross-module/layer dependencies are introduced, a human must assess architectural impact and long-term maintainability.
+- If behavior differs across platforms/runtimes, a human must validate parity expectations and ensure no unintended regressions on unaffected targets.
+- If docs significantly rewrite normative behavior wording or broad terminology, a human must verify technical accuracy and that churn is justified.
+- If UI interaction/layout/discoverability patterns change, a human must decide whether usability and consistency tradeoffs are acceptable.
+- If CI matrix size, timeouts, gating, or failure handling changes, a human must confirm runtime savings do not hide important regression signals.
+- If a hardware/runtime-specific workaround is introduced, a human must evaluate affected-device scope and safety/performance tradeoffs before merge.
+- If a PR combines a high-risk fix with unrelated extras, a human should decide whether to split changes to reduce regression risk and improve reviewability.
